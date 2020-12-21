@@ -1,0 +1,16 @@
+- name: fleet-spec-1
+  fleetSpec:
+    replicas: 5
+    template:
+      metadata:
+        labels:
+          app: simple-udp
+      spec:
+        ports:
+        - name: default
+          containerPort: 7654
+        template:
+          spec:
+            containers:
+            - name: simple-udp
+              image: gcr.io/agones-images/udp-server:0.21

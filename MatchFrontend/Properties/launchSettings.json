@@ -1,0 +1,12 @@
+﻿{
+  "profiles": {
+    "MatchFrontend": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "applicationUrl": "https://localhost:51507",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

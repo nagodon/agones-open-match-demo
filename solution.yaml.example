@@ -1,0 +1,97 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: agones-allocation
+  namespace: demo
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: agones-allocator
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: demo
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-director
+  namespace: demo
+spec:
+  containers:
+  - name: demo-director
+    image: gcr.io/REPLACE_GCP_PROJECT/demo-director:latest
+    imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-matchfunction
+  namespace: demo
+  labels:
+    app: demo-matchfunction
+    component: matchfunction
+spec:
+  containers:
+  - name: demo-matchfunction
+    image: gcr.io/REPLACE_GCP_PROJECT/demo-matchfunction:latest
+    imagePullPolicy: Always
+    ports:
+    - name: grpc
+      containerPort: 50502
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-frontend
+  namespace: demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: demo-frontend
+  template:
+    metadata:
+      labels:
+        app: demo-frontend
+    spec:
+      containers:
+      - name: demo-frontend
+        image: gcr.io/REPLACE_GCP_PROJECT/demo-frontend:latest
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 51507
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-matchfunction
+  namespace: demo
+  labels:
+    app: demo
+spec:
+  selector:
+    app: demo-matchfunction
+  clusterIP: None
+  type: ClusterIP
+  ports:
+  - name: grpc
+    protocol: TCP
+    port: 50502
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-frontend
+  namespace: demo
+  labels:
+    app: demo
+spec:
+  selector:
+    app: demo-frontend
+  type: LoadBalancer
+  ports:
+  - name: http
+    protocol: TCP
+    port: 51507
